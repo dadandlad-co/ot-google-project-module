@@ -1,0 +1,59 @@
+---
+#----------------------------------------------------------------------------
+# .pre-commit-config.yaml
+#----------------------------------------------------------------------------
+
+exclude: template
+repos:
+  - repo: local
+    hooks:
+      - id: trufflehog
+        name: TruffleHog
+        description: Detect secrets in your data.
+        entry: trufflehog git file://. --since-commit HEAD --fail
+        language: golang
+        pass_filenames: false
+        stages: ["pre-commit", "pre-push"]
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-yaml
+        args:
+          - "--allow-multiple-documents"
+      - id: pretty-format-json
+        args:
+          - "--autofix"
+          - "--no-sort-keys"
+  - repo: https://github.com/tofuutils/pre-commit-opentofu
+    rev: v2.1.0  # Replace with the latest version of OpenTofu hooks repository.
+    hooks:
+      - id: tofu_fmt
+        name: OpenTofu Format
+        description: Format OpenTofu configuration files.
+      - id: tofu_validate
+        name: OpenTofu Validate
+        description: Validate OpenTofu configuration files.
+        args:
+          - --hook-config=--retry-once-with-cleanup=true
+      - id: tofu_docs
+        name: OpenTofu Docs Generator
+        description: Generate documentation for OpenTofu modules.
+        args:
+          - --args=--lockfile=false
+      - id: tofu_tflint
+        name: OpenTofu Linting
+        description: Run tflint for linting OpenTofu configuration files.
+        args:
+          - --args=--config=__GIT_WORKING_DIR__/.tflint.hcl
+      - id: tofu_checkov
+        name: OpenTofu Security Checks
+        description: Run Checkov for security scanning of OpenTofu configurations.
+      # - id: infracost_breakdown
+      #   name: Cost Breakdown Analysis for OpenTofu Configurations
+      #   description: Analyze cost breakdown using Infracost for OpenTofu configurations.
+      #   args:
+      #     - --args=--path=.
+      #     - --args=--opentofu-var-file="infracost.tfvars"

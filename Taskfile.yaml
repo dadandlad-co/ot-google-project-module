@@ -1,0 +1,126 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# https://taskfile.dev
+
+version: "3"
+
+dotenv: [".envrc"]
+env:
+  GIT_SSH_COMMAND: "{{.GIT_SSH_COMMAND}}"
+
+vars:
+  CURRENT_DATE:
+    sh: date +"%Y-%m-%dT%H:%M:%S%Z"
+
+tasks:
+  default:
+    desc: Run the pre-commit hooks
+    cmds:
+      - "direnv allow"
+      - task: pre
+
+  hog:
+    desc: Scan for secrets
+    cmds:
+      - trufflehog git file://. --since-commit HEAD --only-verified --fail
+
+  pre:
+    desc: Run the pre-commit hooks
+    cmds:
+      - pre-commit autoupdate
+      - pre-commit run -a
+
+  push:
+    desc: Push the changes to the remote repository
+    deps: [clean]
+    cmds:
+      - git add .
+      - git commit -m "{{.CURRENT_DATE}}"
+      - git push
+    silent: true
+
+  tag:
+    desc: Push the changes to the remote repository
+    cmds:
+      - git push
+      - git tag -s {{.CLI_ARGS}} -m "{{.CLI_ARGS}}"
+      - git push --tags
+
+  update-managed:
+    desc: Update the managed files from the GitHub template repo
+    requires:
+      vars: [ORGANIZATION]
+    vars:
+      MANAGED_FILES: .envrc .gitignore .pre-commit-config.yaml .opentofu-docs.yml .tflint.hcl Taskfile.yaml
+      PRECOMMIT: git@github.com:{{.ORGANIZATION}}/opentofu-repo-template.git
+    cmds:
+      - |
+        # Move the existing files to a HOLD directory
+        for i in {{.MANAGED_FILES}}; do
+          if [ -f "$i" -a ! -f ".skip_${i}" ]; then
+            mv $i $i.HOLD
+          fi
+        done
+      - |
+        # Copy all non-skipped files from the template repo
+        for i in {{.MANAGED_FILES}}; do
+          if [ ! -f ".skip_${i}" ]; then
+            cp "{{.TEMPDIR}}/$i" .
+          fi
+        done
+      - defer: { task: clean }
+
+  run-opentofu:
+    desc: Render the boilr template for OpenTofu repos
+    aliases: [run-tf]
+    requires:
+      vars: [REPO]
+    cmds:
+      - |
+        if [ -d "opentofu" ]; then
+          mv opentofu opentofu.HOLD
+        fi
+      - defer: { task: clean }
+      - "boilr template save boilr {{.REPO}} --force"
+      - |
+        if [ -f "{{.REPO}}.json" ]; then
+          boilr template use {{.REPO}} . --use-file {{.REPO}}.json;
+        else
+          boilr template use {{.REPO}} . --json-file {{.REPO}}.json;
+        fi
+
+  update-repo:
+    desc: Update the repository from this templates repo
+    deps: [clean]
+    requires:
+      vars: [ORGANIZATION, REPO, REPO_SHORTNAME]
+    vars:
+      TEMPDIR:
+        sh: mktemp -d /tmp/clone.XXXXXXXXXX
+      THIS_REPO: git@github.com:{{replace .ORGANIZATION "." "-"}}/{{.REPO}}.git
+    cmds:
+      - "git clone -q --branch main --single-branch --git-dir {{.TEMPDIR}}/.git --work-tree {{.REPO_SHORTNAME}} {{.THIS_REPO}}"
+      - |
+        if [ -d boilr ]; then
+          mv boilr boilr.HOLD
+        fi
+        cp -r {{.TEMPDIR}}/boilr .
+      - |
+        if [ -f Taskfile.yaml ]; then
+          mv Taskfile.yaml Taskfile.yaml.HOLD
+        fi
+        cp -r {{.TEMPDIR}}/Taskfile.yaml .
+      - defer: { task: clean }
+
+  clean:
+    desc: Clean up the repository
+    silent: true
+    cmds:
+      - pre-commit clean >/dev/null 2>&1
+      - if [ -d 'boilr' ]; then find boilr -type f -name 'README.md' | xargs rm -r >/dev/null 2>&1; else exit 0; fi
+      - |
+        find . -name '*.HOLD' -o \
+             -type d -name '.opentofu' -o \
+             -type f -name '*.tfstate*' -o \
+             -type f -name '.opentofu.lock.hcl' \
+        | xargs -P 4 -n 1 rm -rf >/dev/null 2>&1
+      - printf "Clean done\n"

@@ -1,0 +1,13 @@
+---
+#----------------------------------------------------------------------------
+# .opentofu-docs.yml
+# use the following command to install OpenTofu:
+# brew install opentofu
+#----------------------------------------------------------------------------
+
+settings:
+  anchor: false
+
+sort:
+  enabled: true
+  by: required
