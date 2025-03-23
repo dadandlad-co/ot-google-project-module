@@ -30,7 +30,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Run Checkov
         id: checkov
         uses: bridgecrewio/checkov-action@master

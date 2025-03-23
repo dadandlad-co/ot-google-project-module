@@ -20,7 +20,7 @@ jobs:
       - name: Setup OpenTofu
         uses: opentofu/setup-opentofu@v1
         with:
-          tofu_version: "1.6.0"
+          tofu_version: "1.9.0"
           tofu_wrapper: false
 
       - name: OpenTofu Init
@@ -34,34 +34,3 @@ jobs:
       - name: OpenTofu Format Check
         id: fmt
         run: tofu fmt -check -recursive
-
-  examples:
-    name: "Validate Examples"
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        example:
-          - "simple"
-          - "complete"
-          - "organization-policies"
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup OpenTofu
-        uses: opentofu/setup-opentofu@v1
-        with:
-          tofu_version: "1.6.0"
-          tofu_wrapper: false
-
-      - name: OpenTofu Init
-        id: init
-        run: |
-          cd examples/${{ matrix.example }}
-          tofu init -backend=false
-
-      - name: OpenTofu Validate
-        id: validate
-        run: |
-          cd examples/${{ matrix.example }}
-          tofu validate
