@@ -5,6 +5,7 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
 [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
+[![Actions Status](https://github.com/dadandlad-co/ot-google-project-module/workflows/terraform/badge.svg)](https://github.com/dadandlad-co/ot-google-project-module/actions)
 
 This repository contains my template for creating OpenTofu modules, yes even my
 root modules. This template is based on the best practices I have learned and
