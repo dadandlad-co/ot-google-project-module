@@ -70,14 +70,14 @@ tasks:
       - defer: { task: clean }
 
   run-opentofu:
-    desc: Render the boilr template for OpenTofu repos
+    desc: Render the boilr template for OpenTofu template repos
     aliases: [run-tf]
     requires:
       vars: [REPO]
     cmds:
       - |
-        if [ -d "opentofu" ]; then
-          mv opentofu opentofu.HOLD
+        if [ -d "terraform" ]; then
+          mv terraform terraform.HOLD
         fi
       - defer: { task: clean }
       - "boilr template save boilr {{.REPO}} --force"
@@ -119,8 +119,8 @@ tasks:
       - if [ -d 'boilr' ]; then find boilr -type f -name 'README.md' | xargs rm -r >/dev/null 2>&1; else exit 0; fi
       - |
         find . -name '*.HOLD' -o \
-             -type d -name '.opentofu' -o \
+             -type d -name '.terraform' -o \
              -type f -name '*.tfstate*' -o \
-             -type f -name '.opentofu.lock.hcl' \
+             -type f -name '.terraform.lock.hcl' \
         | xargs -P 4 -n 1 rm -rf >/dev/null 2>&1
       - printf "Clean done\n"
