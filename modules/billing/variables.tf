@@ -66,7 +66,7 @@ variable "budget_alert_spend_thresholds" {
 
   validation {
     condition = alltrue([
-      for threshold in var.budget_alert_spend_thresholds : 
+      for threshold in var.budget_alert_spend_thresholds :
       threshold >= 0 && threshold <= 1.0
     ])
     error_message = "Budget alert thresholds must be between 0 and 1.0 (representing 0% to 100%)."

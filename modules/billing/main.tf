@@ -56,10 +56,10 @@ resource "google_billing_account_iam_member" "custom_iam_members" {
 
 # Billing account budget configuration
 resource "google_billing_budget" "billing_account_budget" {
-  count            = var.enable_billing_budget ? 1 : 0
-  billing_account  = var.billing_account_id
-  display_name     = var.budget_display_name
-  
+  count           = var.enable_billing_budget ? 1 : 0
+  billing_account = var.billing_account_id
+  display_name    = var.budget_display_name
+
   amount {
     specified_amount {
       currency_code = var.budget_currency_code
@@ -78,7 +78,7 @@ resource "google_billing_budget" "billing_account_budget" {
   dynamic "all_updates_rule" {
     for_each = var.budget_alert_pubsub_topic != null ? [1] : []
     content {
-      pubsub_topic = var.budget_alert_pubsub_topic
+      pubsub_topic   = var.budget_alert_pubsub_topic
       schema_version = "1.0"
     }
   }

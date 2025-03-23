@@ -29,7 +29,7 @@ variable "budget_alert_spend_thresholds" {
 
   validation {
     condition = alltrue([
-      for threshold in var.budget_alert_spend_thresholds : 
+      for threshold in var.budget_alert_spend_thresholds :
       threshold >= 0 && threshold <= 1.0
     ])
     error_message = "Budget alert thresholds must be between 0 and 1.0 (representing 0% to 100%)."
@@ -112,12 +112,6 @@ variable "org_id" {
     condition     = var.org_id == null || can(regex("^\\d+$", var.org_id))
     error_message = "The org_id must be null or a numeric string."
   }
-}
-
-variable "prevent_destroy" {
-  description = "Whether to prevent destruction of the project resource."
-  type        = bool
-  default     = true
 }
 
 variable "project_id" {

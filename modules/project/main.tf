@@ -6,12 +6,12 @@
  */
 
 locals {
-  random_id_enabled      = var.random_id == null ? false : true
-  project_id             = local.random_id_enabled ? "${var.project_id}-${random_id.project_suffix[0].hex}" : var.project_id
-  create_project_sa      = var.create_project_sa == true ? 1 : 0
-  default_service_apis   = []
-  service_apis           = concat(local.default_service_apis, var.activate_apis)
-  labels                 = merge(var.labels, { managed_by = "opentofu" })
+  random_id_enabled          = var.random_id == null ? false : true
+  project_id                 = local.random_id_enabled ? "${var.project_id}-${random_id.project_suffix[0].hex}" : var.project_id
+  create_project_sa          = var.create_project_sa == true ? 1 : 0
+  default_service_apis       = []
+  service_apis               = concat(local.default_service_apis, var.activate_apis)
+  labels                     = merge(var.labels, { managed_by = "opentofu" })
   svpc_host_project_required = var.shared_vpc_host_project_id != null
 }
 
@@ -30,9 +30,9 @@ resource "google_project" "this" {
   auto_create_network = var.auto_create_network
   labels              = local.labels
 
-  # lifecycle {
-  #   prevent_destroy = var.prevent_destroy != null ? var.prevent_destroy : false
-  # }
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "google_project_service" "service_apis" {
@@ -84,10 +84,10 @@ resource "google_project_iam_member" "project_iam" {
 
 # Budget alert configuration if budget_alert_pubsub_topic is provided
 resource "google_billing_budget" "budget" {
-  count            = var.budget_amount != null ? 1 : 0
-  billing_account  = var.billing_account
-  display_name     = var.budget_display_name != null ? var.budget_display_name : "Budget for ${google_project.this.name}"
-  
+  count           = var.budget_amount != null ? 1 : 0
+  billing_account = var.billing_account
+  display_name    = var.budget_display_name != null ? var.budget_display_name : "Budget for ${google_project.this.name}"
+
   amount {
     specified_amount {
       currency_code = var.budget_currency_code
