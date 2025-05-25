@@ -8,7 +8,6 @@ vars:
   EXAMPLES_DIRS:
     - examples/simple
     - examples/complete
-    - examples/dad-and-lad-platform
 
 tasks:
   default:
@@ -46,7 +45,7 @@ tasks:
 
   test:
     desc: Run all tests
-    deps: [test-simple, test-complete, test-platform]
+    deps: [test-simple, test-complete]
 
   test-simple:
     desc: Test simple example
@@ -68,15 +67,7 @@ tasks:
         tofu plan -var="project_id=test-complete-$(date +%s)" -out=tfplan && \
         echo "Complete example validation: PASSED"
 
-  test-platform:
-    desc: Test Dad and Lad platform example
-    cmds:
-      - echo "Testing platform example..."
-      - |
-        cd examples/dad-and-lad-platform && \
-        tofu init && \
-        tofu plan -var="project_id=test-platform-$(date +%s)" -out=tfplan && \
-        echo "Platform example validation: PASSED"
+
 
   fmt:
     desc: Format all OpenTofu files
@@ -111,26 +102,7 @@ tasks:
       - pre-commit autoupdate
       - pre-commit run -a
 
-  deploy-platform:
-    desc: Deploy the Dad and Lad platform
-    cmds:
-      - echo "Deploying Dad and Lad platform..."
-      - |
-        cd examples/dad-and-lad-platform && \
-        tofu init && \
-        tofu apply -auto-approve
 
-  destroy-platform:
-    desc: Destroy the Dad and Lad platform
-    cmds:
-      - echo "Destroying Dad and Lad platform..."
-      - |
-        cd examples/dad-and-lad-platform && \
-        if [ -f "terraform.tfstate" ]; then \
-          tofu destroy -auto-approve; \
-        else \
-          echo "No platform deployment found"; \
-        fi
 
   clean:
     desc: Clean up temporary files
@@ -145,22 +117,3 @@ tasks:
           -type f -name 'tfplan' \
         \) -exec rm -rf {} + 2>/dev/null || true
       - echo "Clean completed"
-
-  platform-config:
-    desc: Show platform configuration
-    cmds:
-      - echo "Dad and Lad Platform Configuration:"
-      - echo "Project ID: dnlc-admin-46f6"
-      - echo "Region: us-west1"
-      - echo "APIs needed: AI Platform, Cloud Functions, Firestore, etc."
-
-  platform-status:
-    desc: Check platform status
-    cmds:
-      - |
-        cd examples/dad-and-lad-platform && \
-        if [ -f "terraform.tfstate" ]; then \
-          tofu show | grep -E "(project_id|service_account_email|enabled_apis)"; \
-        else \
-          echo "Platform not deployed"; \
-        fi 

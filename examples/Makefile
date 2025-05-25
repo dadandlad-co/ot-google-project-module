@@ -1,7 +1,7 @@
 # Makefile for OpenTofu Google Project Module
 # Alternative to Taskfile for teams that prefer Make
 
-.PHONY: help dev-setup validate test fmt docs clean security-scan deploy-platform
+.PHONY: help dev-setup validate test fmt docs clean security-scan
 
 # Default target
 help: ## Show this help message
@@ -23,7 +23,7 @@ validate: ## Validate all modules and examples
 		fi; \
 	done
 	@echo "Validating examples..."
-	@for dir in examples/simple examples/complete examples/dad-and-lad-platform; do \
+	@for dir in examples/simple examples/complete; do \
 		if [ -d "$$dir" ]; then \
 			echo "Validating $$dir"; \
 			cd "$$dir" && tofu init -backend=false && tofu validate && tofu fmt -check && cd - > /dev/null; \
@@ -34,7 +34,6 @@ test: ## Run all tests
 	@echo "Running tests..."
 	@$(MAKE) test-simple
 	@$(MAKE) test-complete
-	@$(MAKE) test-platform
 
 test-simple: ## Test simple example
 	@echo "Testing simple example..."
@@ -50,12 +49,7 @@ test-complete: ## Test complete example
 		tofu plan -var="project_id=test-complete-$$(date +%s)" -out=tfplan && \
 		echo "Complete example validation: PASSED"
 
-test-platform: ## Test Dad and Lad platform example
-	@echo "Testing platform example..."
-	@cd examples/dad-and-lad-platform && \
-		tofu init && \
-		tofu plan -var="project_id=test-platform-$$(date +%s)" -out=tfplan && \
-		echo "Platform example validation: PASSED"
+
 
 fmt: ## Format all OpenTofu files
 	@echo "Formatting all files..."
@@ -81,20 +75,7 @@ pre-commit: ## Run pre-commit hooks
 	@pre-commit autoupdate
 	@pre-commit run -a
 
-deploy-platform: ## Deploy the Dad and Lad platform
-	@echo "Deploying Dad and Lad platform..."
-	@cd examples/dad-and-lad-platform && \
-		tofu init && \
-		tofu apply -auto-approve
 
-destroy-platform: ## Destroy the Dad and Lad platform
-	@echo "Destroying Dad and Lad platform..."
-	@cd examples/dad-and-lad-platform && \
-		if [ -f "terraform.tfstate" ]; then \
-			tofu destroy -auto-approve; \
-		else \
-			echo "No platform deployment found"; \
-		fi
 
 clean: ## Clean up temporary files
 	@echo "Cleaning up..."
@@ -106,18 +87,3 @@ clean: ## Clean up temporary files
 		-type f -name 'tfplan' \
 	\) -exec rm -rf {} + 2>/dev/null || true
 	@echo "Clean completed"
-
-# Platform-specific targets
-platform-config: ## Show platform configuration
-	@echo "Dad and Lad Platform Configuration:"
-	@echo "Project ID: dnlc-admin-46f6"
-	@echo "Region: us-west1"  
-	@echo "APIs needed: AI Platform, Cloud Functions, Firestore, etc."
-
-platform-status: ## Check platform status
-	@cd examples/dad-and-lad-platform && \
-		if [ -f "terraform.tfstate" ]; then \
-			tofu show | grep -E "(project_id|service_account_email|enabled_apis)"; \
-		else \
-			echo "Platform not deployed"; \
-		fi

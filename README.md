@@ -110,11 +110,6 @@ Comprehensive project setup with all features enabled.
 - **Location**: `examples/complete/`
 - **Use case**: Production projects with full IAM, budgets, and monitoring
 
-### Dad and Lad Platform Example
-Real-world configuration for an AI-powered book review platform.
-- **Location**: `examples/dad-and-lad-platform/`
-- **Use case**: Platform-specific setup with AI APIs, content generation services
-
 ## Development Workflow
 
 This module includes a comprehensive `Taskfile.yaml` for development automation:
