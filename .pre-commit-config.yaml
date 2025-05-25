@@ -28,7 +28,7 @@ repos:
           - "--autofix"
           - "--no-sort-keys"
   - repo: https://github.com/tofuutils/pre-commit-opentofu
-    rev: v2.1.0  # Replace with the latest version of OpenTofu hooks repository.
+    rev: v2.2.0  # Replace with the latest version of OpenTofu hooks repository.
     hooks:
       - id: tofu_fmt
         name: OpenTofu Format

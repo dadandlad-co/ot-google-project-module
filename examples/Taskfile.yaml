@@ -1,0 +1,166 @@
+version: '3'
+
+vars:
+  MODULES_DIRS:
+    - modules/project
+    - modules/billing
+    - modules/billing-budget
+  EXAMPLES_DIRS:
+    - examples/simple
+    - examples/complete
+    - examples/dad-and-lad-platform
+
+tasks:
+  default:
+    cmds:
+      - task --list
+    silent: true
+
+  dev-setup:
+    desc: Set up development environment
+    cmds:
+      - echo "Setting up development environment..."
+      - direnv allow
+      - pre-commit install
+      - echo "Development environment ready!"
+
+  validate:
+    desc: Validate all modules and examples
+    cmds:
+      - echo "Validating modules..."
+      - |
+        for dir in {{.MODULES_DIRS}}; do
+          if [ -d "$dir" ]; then
+            echo "Validating $dir"
+            cd "$dir" && tofu init -backend=false && tofu validate && tofu fmt -check && cd - > /dev/null
+          fi
+        done
+      - echo "Validating examples..."
+      - |
+        for dir in {{.EXAMPLES_DIRS}}; do
+          if [ -d "$dir" ]; then
+            echo "Validating $dir"
+            cd "$dir" && tofu init -backend=false && tofu validate && tofu fmt -check && cd - > /dev/null
+          fi
+        done
+
+  test:
+    desc: Run all tests
+    deps: [test-simple, test-complete, test-platform]
+
+  test-simple:
+    desc: Test simple example
+    cmds:
+      - echo "Testing simple example..."
+      - |
+        cd examples/simple && \
+        tofu init && \
+        tofu plan -var="project_id=test-simple-$(date +%s)" -out=tfplan && \
+        echo "Simple example validation: PASSED"
+
+  test-complete:
+    desc: Test complete example
+    cmds:
+      - echo "Testing complete example..."
+      - |
+        cd examples/complete && \
+        tofu init && \
+        tofu plan -var="project_id=test-complete-$(date +%s)" -out=tfplan && \
+        echo "Complete example validation: PASSED"
+
+  test-platform:
+    desc: Test Dad and Lad platform example
+    cmds:
+      - echo "Testing platform example..."
+      - |
+        cd examples/dad-and-lad-platform && \
+        tofu init && \
+        tofu plan -var="project_id=test-platform-$(date +%s)" -out=tfplan && \
+        echo "Platform example validation: PASSED"
+
+  fmt:
+    desc: Format all OpenTofu files
+    cmds:
+      - echo "Formatting all files..."
+      - tofu fmt -recursive .
+      - echo "All files formatted"
+
+  docs:
+    desc: Generate documentation
+    cmds:
+      - echo "Generating documentation..."
+      - |
+        for dir in {{.MODULES_DIRS}}; do
+          if [ -d "$dir" ]; then
+            echo "Generating docs for $dir"
+            cd "$dir" && terraform-docs markdown . > README.md && cd - > /dev/null
+          fi
+        done
+
+  security-scan:
+    desc: Run security scans
+    cmds:
+      - echo "Running security scans..."
+      - trufflehog git file://. --since-commit HEAD --only-verified --fail
+      - tfsec . --soft-fail
+      - checkov -d . --framework terraform --soft-fail
+
+  pre-commit:
+    desc: Run pre-commit hooks
+    cmds:
+      - pre-commit autoupdate
+      - pre-commit run -a
+
+  deploy-platform:
+    desc: Deploy the Dad and Lad platform
+    cmds:
+      - echo "Deploying Dad and Lad platform..."
+      - |
+        cd examples/dad-and-lad-platform && \
+        tofu init && \
+        tofu apply -auto-approve
+
+  destroy-platform:
+    desc: Destroy the Dad and Lad platform
+    cmds:
+      - echo "Destroying Dad and Lad platform..."
+      - |
+        cd examples/dad-and-lad-platform && \
+        if [ -f "terraform.tfstate" ]; then \
+          tofu destroy -auto-approve; \
+        else \
+          echo "No platform deployment found"; \
+        fi
+
+  clean:
+    desc: Clean up temporary files
+    cmds:
+      - echo "Cleaning up..."
+      - |
+        find . \( \
+          -name '*.HOLD' -o \
+          -type d -name '.terraform' -o \
+          -type f -name '*.tfstate*' -o \
+          -type f -name '.terraform.lock.hcl' -o \
+          -type f -name 'tfplan' \
+        \) -exec rm -rf {} + 2>/dev/null || true
+      - echo "Clean completed"
+
+  platform-config:
+    desc: Show platform configuration
+    cmds:
+      - echo "Dad and Lad Platform Configuration:"
+      - echo "Project ID: dnlc-admin-46f6"
+      - echo "Region: us-west1"
+      - echo "APIs needed: AI Platform, Cloud Functions, Firestore, etc."
+
+  platform-status:
+    desc: Check platform status
+    cmds:
+      - |
+        cd examples/dad-and-lad-platform && \
+        if [ -f "terraform.tfstate" ]; then \
+          tofu show | grep -E "(project_id|service_account_email|enabled_apis)"; \
+        else \
+          echo "Platform not deployed"; \
+        fi 
