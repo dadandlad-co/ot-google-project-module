@@ -1,11 +1,11 @@
+# Google Cloud Monitoring Module
+
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/dadandlad.co)
 
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
 [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
-[![OpenTofu Validate](https://github.com/dadandlad-co/ot-github-repo-module/actions/workflows/terraform-validate.yml/badge.svg)](https://github.com/dadandlad-co/ot-github-repo-module/actions/workflows/terraform-validate.yml)
-
-# Google Cloud Monitoring Module
+[![OpenTofu Validate](https://github.com/dadandlad-co/ot-google-project-module/actions/workflows/terraform-validate.yml/badge.svg)](https://github.com/dadandlad-co/ot-google-project-module/actions/workflows/terraform-validate.yml)
 
 This Terraform module configures monitoring resources for Google Cloud Platform projects, including alert
 policies, notification channels, and dashboards.
@@ -88,4 +88,18 @@ The module includes a project overview dashboard that displays key metrics for t
 
 ## License
 
-This module is licensed under the [LICENSE](../../../LICENSE) file in the root of the repository.
+This module is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
+
+## Authors
+
+Maintained by [dadandlad-co](https://github.com/dadandlad-co).
+
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md) for version history and changes.
+
+## Support
+
+- 🐛 **Issues**: [GitHub Issues](https://github.com/dadandlad-co/ot-github-repo-module/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/dadandlad-co/ot-github-repo-module/discussions)
+- ☕ **Support**: [Buy Me a Coffee](https://buymeacoffee.com/dadandlad.co)
