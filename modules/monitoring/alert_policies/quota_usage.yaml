@@ -1,0 +1,13 @@
+display_name: "Quota Usage High - %s"
+combiner: "OR"
+enabled: true
+conditions:
+  - display_name: "Quota usage > 80%"
+    condition_threshold:
+      filter: 'resource.type="consumer_quota" AND resource.labels.project_id="%s" AND metric.type="serviceruntime.googleapis.com/quota/used"'
+      comparison: "COMPARISON_GREATER_THAN"
+      threshold_value: 0.8
+      duration: "300s"
+      aggregations:
+        - alignment_period: "300s"
+          per_series_aligner: "ALIGN_MEAN"

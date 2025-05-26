@@ -1,0 +1,13 @@
+display_name: "Budget Burn Rate Alert - %s"
+combiner: "OR"
+enabled: true
+conditions:
+  - display_name: "Daily spend indicates budget overage"
+    condition_threshold:
+      filter: 'metric.type="billing.googleapis.com/billing/total_cost" AND resource.labels.project_id="%s"'
+      comparison: "COMPARISON_GREATER_THAN"
+      multiplier: 1.2  # 20% above expected daily spend
+      duration: "0s"
+      aggregations:
+        - alignment_period: "86400s"  # 1 day
+          per_series_aligner: "ALIGN_SUM"

@@ -45,7 +45,7 @@ module "complete_project" {
       member = "user:${var.viewer_email}"
     },
     {
-      role   = "roles/editor" 
+      role   = "roles/editor"
       member = "group:${var.editor_group}"
     },
     {
@@ -102,4 +102,27 @@ module "project_budget" {
   alert_pubsub_topic = var.budget_pubsub_topic
 
   depends_on = [module.complete_project]
+}
+
+# Add monitoring
+module "project_monitoring" {
+  source = "../../modules/monitoring"
+
+  project_id      = module.complete_project.project_id
+  budget_name     = module.project_budget.display_name
+  budget_amount   = var.budget_amount
+  billing_account = var.billing_account
+
+  enable_project_monitoring = true
+  enable_budget_monitoring  = true
+  enable_dashboards         = true
+
+  notification_channels = [
+    google_monitoring_notification_channel.email.id
+  ]
+
+  depends_on = [
+    module.complete_project,
+    module.project_budget
+  ]
 }

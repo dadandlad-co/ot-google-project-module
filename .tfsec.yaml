@@ -1,0 +1,42 @@
+# tfsec configuration for OpenTofu Google Project Module
+severity: MEDIUM
+exclude_downloaded_modules: true
+exclude_paths:
+  - ".terraform/"
+  - "examples/"
+
+# Custom checks configuration
+checks:
+  # Google Cloud specific rules
+  - name: "google-project-billing-enabled"
+    description: "Ensure projects have billing enabled"
+    severity: "HIGH"
+
+  - name: "google-iam-member-format"
+    description: "Ensure IAM members use proper format"
+    severity: "MEDIUM"
+
+# Exclude rules that don't apply to our module
+exclude_rules:
+  - AWS001
+  - AWS002
+  - AZU001
+  - AZU002
+
+# Include Google Cloud specific rules
+include_rules:
+  - GCP001  # Google Cloud storage bucket encryption
+  - GCP002  # Google Cloud IAM policy binding
+  - GCP003  # Google Cloud project IAM
+
+# Minimum severity level
+minimum_severity: MEDIUM
+
+# Output format
+format: lovely
+
+# Include ignored findings in output
+include_ignored: false
+
+# Include passed findings in output
+include_passed: false

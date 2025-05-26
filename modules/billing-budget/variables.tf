@@ -60,12 +60,6 @@ variable "billing_account" {
   }
 }
 
-variable "budget_labels" {
-  description = "Labels to apply to the budget resource itself (not the filter labels)."
-  type        = map(string)
-  default     = {}
-}
-
 variable "create_pubsub_topic" {
   description = "Whether to create the Pub/Sub topic for budget alerts. Only used if alert_pubsub_topic is null and you want to create a new topic."
   type        = bool
@@ -80,7 +74,7 @@ variable "credit_types_treatment" {
   validation {
     condition = contains([
       "INCLUDE_ALL_CREDITS",
-      "EXCLUDE_ALL_CREDITS", 
+      "EXCLUDE_ALL_CREDITS",
       "INCLUDE_SPECIFIED_CREDITS"
     ], var.credit_types_treatment)
     error_message = "Credit types treatment must be one of: INCLUDE_ALL_CREDITS, EXCLUDE_ALL_CREDITS, INCLUDE_SPECIFIED_CREDITS."

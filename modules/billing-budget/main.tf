@@ -13,14 +13,14 @@
  * ```hcl
  * module "project_budget" {
  *   source = "./modules/billing-budget"
- *   
+ *
  *   billing_account = "ABCDEF-123456-GHIJKL"
  *   display_name    = "My Project Budget"
  *   amount          = 1000
  *   currency_code   = "USD"
- *   
+ *
  *   project_ids = ["projects/123456789"]
- *   
+ *
  *   alert_spend_thresholds = [0.5, 0.8, 0.9, 1.0]
  *   alert_pubsub_topic     = "projects/my-project/topics/budget-alerts"
  * }
@@ -30,23 +30,14 @@
 locals {
   # Normalize project IDs to ensure consistent format
   normalized_project_ids = [
-    for project_id in var.project_ids : 
+    for project_id in var.project_ids :
     startswith(project_id, "projects/") ? project_id : "projects/${project_id}"
   ]
-  
+
   # Create budget filter based on provided parameters
   has_project_filter = length(var.project_ids) > 0
   has_service_filter = length(var.services) > 0
   has_label_filter   = length(var.labels) > 0
-  
-  # Generate labels for the budget itself
-  budget_labels = merge(
-    var.budget_labels,
-    {
-      managed_by = "opentofu"
-      created_at = formatdate("YYYY-MM-DD", timestamp())
-    }
-  )
 }
 
 # Create the billing budget
@@ -68,22 +59,14 @@ resource "google_billing_budget" "budget" {
     content {
       # Filter by specific projects
       projects = local.has_project_filter ? local.normalized_project_ids : null
-      
+      labels   = local.has_label_filter ? var.labels : null
+
       # Filter by specific services
       services = local.has_service_filter ? [
-        for service in var.services : 
+        for service in var.services :
         startswith(service, "services/") ? service : "services/${service}"
       ] : null
-      
-      # Filter by labels
-      dynamic "labels" {
-        for_each = var.labels
-        content {
-          key    = labels.key
-          values = labels.value
-        }
-      }
-      
+
       # Filter by credit types
       credit_types_treatment = var.credit_types_treatment
     }
@@ -108,12 +91,6 @@ resource "google_billing_budget" "budget" {
       disable_default_iam_recipients   = var.disable_default_iam_recipients
     }
   }
-  
-  lifecycle {
-    ignore_changes = [
-      budget_labels["created_at"] # Ignore timestamp changes on subsequent applies
-    ]
-  }
 }
 
 # Create Pub/Sub topic if requested and doesn't exist
@@ -121,7 +98,7 @@ resource "google_pubsub_topic" "budget_alerts" {
   count   = var.create_pubsub_topic ? 1 : 0
   project = var.pubsub_topic_project
   name    = var.pubsub_topic_name
-  
+
   labels = {
     purpose    = "budget-alerts"
     managed_by = "opentofu"
@@ -131,14 +108,14 @@ resource "google_pubsub_topic" "budget_alerts" {
 # Create monitoring notification channels for email alerts if specified
 resource "google_monitoring_notification_channel" "email_channels" {
   for_each = toset(var.alert_email_addresses)
-  
+
   project      = var.monitoring_project != null ? var.monitoring_project : var.pubsub_topic_project
   display_name = "Budget Alert - ${each.value}"
   type         = "email"
-  
+
   labels = {
     email_address = each.value
   }
-  
+
   enabled = true
 }

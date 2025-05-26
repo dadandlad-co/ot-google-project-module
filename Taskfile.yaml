@@ -98,7 +98,11 @@ tasks:
         sh: mktemp -d /tmp/clone.XXXXXXXXXX
       THIS_REPO: git@github.com:{{replace .ORGANIZATION "." "-"}}/{{.REPO}}.git
     cmds:
-      - "git clone -q --branch main --single-branch --git-dir {{.TEMPDIR}}/.git --work-tree {{.REPO_SHORTNAME}} {{.THIS_REPO}}"
+      - |
+        git clone -q --branch main --single-branch \
+          --git-dir {{.TEMPDIR}}/.git \
+          --work-tree {{.REPO_SHORTNAME}} \
+          {{.THIS_REPO}}
       - |
         if [ -d boilr ]; then
           mv boilr boilr.HOLD
