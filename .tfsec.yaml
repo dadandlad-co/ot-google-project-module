@@ -1,3 +1,4 @@
+---
 # tfsec configuration for OpenTofu Google Project Module
 severity: MEDIUM
 exclude_downloaded_modules: true

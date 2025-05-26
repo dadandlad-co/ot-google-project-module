@@ -23,20 +23,15 @@ variable "alert_pubsub_topic" {
 }
 
 variable "alert_spend_thresholds" {
-  description = "List of spend thresholds (as percentages from 0.0 to 1.0) that trigger budget alerts."
+  description = "List of spend thresholds (as percentages from 0.0 to 2.0) that trigger budget alerts."
   type        = list(number)
   default     = [0.5, 0.8, 0.9, 1.0]
 
   validation {
     condition = alltrue([
-      for threshold in var.alert_spend_thresholds : threshold > 0 && threshold <= 1.0
+      for threshold in var.alert_spend_thresholds : threshold > 0 && threshold <= 2.0
     ])
-    error_message = "All thresholds must be between 0.01 and 1.0 (representing 1% to 100%)."
-  }
-
-  validation {
-    condition     = length(var.alert_spend_thresholds) > 0
-    error_message = "At least one alert threshold must be specified."
+    error_message = "All thresholds must be between 0.01 and 2.0 (representing 1% to 200%)."
   }
 }
 

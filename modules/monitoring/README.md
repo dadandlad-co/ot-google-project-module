@@ -25,14 +25,14 @@ module "monitoring" {
 
   project_id         = "my-gcp-project"
   notification_emails = ["alerts@example.com"]
-  
+
   slack_channels = {
     ops = {
       channel = "#ops-alerts"
       url     = "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
     }
   }
-  
+
   # Optional: Configure custom thresholds
   cpu_threshold    = 85
   memory_threshold = 90

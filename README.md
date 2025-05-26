@@ -7,7 +7,8 @@
 [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
 [![OpenTofu Validate](https://github.com/dadandlad-co/ot-google-project-module/actions/workflows/terraform-validate.yml/badge.svg)](https://github.com/dadandlad-co/ot-google-project-module/actions/workflows/terraform-validate.yml)
 
-This OpenTofu module creates and manages Google Cloud Platform (GCP) projects with comprehensive features including API management, IAM configuration, service accounts, shared VPC attachment, and optional billing budget management.
+This OpenTofu module creates and manages Google Cloud Platform (GCP) projects with comprehensive features including
+API management, IAM configuration, service accounts, shared VPC attachment, and optional billing budget management.
 
 ## Features
 
@@ -93,6 +94,7 @@ module "project_budget" {
 ## Default APIs
 
 The project module automatically enables these essential APIs:
+
 - `cloudresourcemanager.googleapis.com` - Project management
 - `cloudbilling.googleapis.com` - Billing operations
 - `iam.googleapis.com` - IAM operations
@@ -101,12 +103,16 @@ The project module automatically enables these essential APIs:
 ## Examples
 
 ### Simple Example
+
 Basic project creation with minimal configuration.
+
 - **Location**: `examples/simple/`
 - **Use case**: Development projects, testing
 
 ### Complete Example
+
 Comprehensive project setup with all features enabled.
+
 - **Location**: `examples/complete/`
 - **Use case**: Production projects with full IAM, budgets, and monitoring
 
@@ -136,7 +142,7 @@ task security-scan
 
 ## Module Inputs
 
-### Project Module
+### Project Module Variables
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|----------|
@@ -150,7 +156,7 @@ task security-scan
 | `iam_members` | IAM member bindings | `list(object)` | `[]` | no |
 | `labels` | Project labels | `map(string)` | `{}` | no |
 
-### Budget Module
+### Budget Module Variables
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|----------|
@@ -163,7 +169,7 @@ task security-scan
 
 ## Module Outputs
 
-### Project Module
+### Project Module Outputs
 
 | Name | Description |
 |------|-------------|
@@ -172,7 +178,7 @@ task security-scan
 | `service_account_email` | Service account email (if created) |
 | `enabled_apis` | List of enabled APIs |
 
-### Budget Module
+### Budget Module Outputs
 
 | Name | Description |
 |------|-------------|

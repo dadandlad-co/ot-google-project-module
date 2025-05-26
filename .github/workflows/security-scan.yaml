@@ -1,4 +1,5 @@
-name: "Security Scan"
+---
+name: "Securi ty Scan"
 
 on:
   push:

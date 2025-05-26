@@ -31,13 +31,13 @@ locals {
   # Normalize project IDs to ensure consistent format
   normalized_project_ids = [
     for project_id in var.project_ids :
-    startswith(project_id, "projects/") ? project_id : "projects/${project_id}"
+    can(regex("^\\d+$", project_id)) ? "projects/${project_id}" : project_id
   ]
 
   # Create budget filter based on provided parameters
   has_project_filter = length(var.project_ids) > 0
   has_service_filter = length(var.services) > 0
-  has_label_filter   = length(var.labels) > 0
+  has_label_filter   = length(keys(var.labels)) > 0
 }
 
 # Create the billing budget
@@ -59,7 +59,7 @@ resource "google_billing_budget" "budget" {
     content {
       # Filter by specific projects
       projects = local.has_project_filter ? local.normalized_project_ids : null
-      labels   = local.has_label_filter ? var.labels : null
+      # labels   = local.has_label_filter ? var.labels : null
 
       # Filter by specific services
       services = local.has_service_filter ? [

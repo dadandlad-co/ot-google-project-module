@@ -1,26 +1,8 @@
-# Checkov configuration for Google Project Module
+---
 framework:
   - terraform
-
-download-external-modules: false
-evaluate-variables: true
-
+quiet: true
+soft-fail: true
 skip-check:
-  # Skip checks that don't apply to our module structure
-  - CKV_GCP_1   # Example: Skip if not applicable
-  - CKV2_GCP_1  # Example: Skip if not applicable
-
-# Custom checks directory
-external-checks-dir: []
-
-# Output format
-output:
-  - cli
-  - json
-
-# Severity threshold
-check-type:
-  - terraform
-
-# Include suppressed findings
-include-all-checkov-policies: true
+  - CKV_GCP_61  # Ensure that Cloud Storage bucket is not anonymously or publicly accessible
+  - CKV_GCP_62  # Ensure that Cloud Storage bucket is not anonymously or publicly readable

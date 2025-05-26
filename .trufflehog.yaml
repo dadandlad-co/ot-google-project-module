@@ -1,3 +1,4 @@
+---
 # .trufflehog.yml - TruffleHog v3 configuration
 exclude-paths:
   - ".terraform/"
@@ -6,5 +7,5 @@ exclude-paths:
   - ".terraform.lock.hcl"
   - ".env.example"
 
-verify: true
-only-verified: true
+detectors:
+  - name: all

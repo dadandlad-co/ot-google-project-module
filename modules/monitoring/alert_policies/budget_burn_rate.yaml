@@ -1,3 +1,4 @@
+---
 display_name: "Budget Burn Rate Alert - %s"
 combiner: "OR"
 enabled: true

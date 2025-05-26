@@ -1,3 +1,4 @@
+---
 display_name: "High API Error Rate - %s"
 combiner: "OR"
 enabled: true

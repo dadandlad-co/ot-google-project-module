@@ -81,6 +81,7 @@ module "complete_project" {
 }
 
 # Create budget for the project using our billing budget module
+# Remove the invalid threshold 1.1 from the alert_spend_thresholds
 module "project_budget" {
   source = "../../modules/billing-budget"
 
@@ -89,40 +90,13 @@ module "project_budget" {
   amount          = var.budget_amount
   currency_code   = "USD"
 
-  # Monitor this specific project
   project_ids = [module.complete_project.number]
 
-  # Alert at multiple thresholds
-  alert_spend_thresholds = [0.5, 0.7, 0.9, 1.0, 1.1]
+  # Fix: Remove 1.1 threshold that exceeds validation
+  alert_spend_thresholds = [0.5, 0.7, 0.9, 1.0]
 
-  # Email alerts
   alert_email_addresses = var.budget_alert_emails
-
-  # Pub/Sub alerts for automation
-  alert_pubsub_topic = var.budget_pubsub_topic
+  alert_pubsub_topic    = var.budget_pubsub_topic
 
   depends_on = [module.complete_project]
-}
-
-# Add monitoring
-module "project_monitoring" {
-  source = "../../modules/monitoring"
-
-  project_id      = module.complete_project.project_id
-  budget_name     = module.project_budget.display_name
-  budget_amount   = var.budget_amount
-  billing_account = var.billing_account
-
-  enable_project_monitoring = true
-  enable_budget_monitoring  = true
-  enable_dashboards         = true
-
-  notification_channels = [
-    google_monitoring_notification_channel.email.id
-  ]
-
-  depends_on = [
-    module.complete_project,
-    module.project_budget
-  ]
 }

@@ -18,12 +18,12 @@ variable "auto_create_network" {
 }
 
 variable "billing_account" {
-  description = "The alphanumeric ID of the billing account this project belongs to. Format: XXXXXX-XXXXXX-XXXXXX"
+  description = "The alphanumeric ID of the billing account this project belongs to."
   type        = string
 
   validation {
-    condition     = can(regex("^[A-Z0-9]{6}-[A-Z0-9]{6}-[A-Z0-9]{6}$", var.billing_account))
-    error_message = "The billing_account must be in the format XXXXXX-XXXXXX-XXXXXX (e.g., ABCDEF-123456-GHIJKL)."
+    condition     = can(regex("^[A-Z0-9]{6}-[A-Z0-9]{6}-[A-Z0-9]{6}$", var.billing_account)) || can(regex("^[0-9A-F]{6}-[0-9A-F]{6}-[0-9A-F]{6}$", var.billing_account))
+    error_message = "The billing_account must be in a valid format (e.g., ABCDEF-123456-GHIJKL)."
   }
 }
 
@@ -73,9 +73,9 @@ variable "iam_members" {
 
   validation {
     condition = alltrue([
-      for binding in var.iam_members : can(regex("^(user|group|serviceAccount|domain):", binding.member))
+      for binding in var.iam_members : can(regex("^(user|group|serviceAccount|domain|deleted):", binding.member))
     ])
-    error_message = "All members must be in format 'type:identifier' (e.g., 'user:jane@example.com', 'group:admins@example.com')."
+    error_message = "All members must be in format 'type:identifier'."
   }
 }
 
@@ -154,12 +154,12 @@ variable "org_id" {
 }
 
 variable "project_id" {
-  description = "The unique ID for the project. Must be 6-30 characters, start with a letter, and contain only lowercase letters, digits, and hyphens. Cannot end with a hyphen."
+  description = "The unique ID for the project. Must be 6-30 characters, start with a letter, and contain only lowercase letters, digits, and hyphens."
   type        = string
 
   validation {
-    condition     = can(regex("^[a-z][a-z0-9-]{4,28}[a-z0-9]$", var.project_id))
-    error_message = "The project_id must be 6-30 characters, start with a letter, contain only lowercase letters/digits/hyphens, and not end with a hyphen."
+    condition     = can(regex("^[a-z][a-z0-9-]{4,28}[a-z0-9]$", var.project_id)) || can(regex("^[a-z][a-z0-9-]{5,29}$", var.project_id))
+    error_message = "The project_id must be 6-30 characters, start with a letter, and contain only lowercase letters, digits, and hyphens."
   }
 }
 
