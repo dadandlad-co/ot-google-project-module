@@ -48,7 +48,7 @@ repos:
         name: OpenTofu Security Checks
         description: Run Checkov for security scanning of OpenTofu configurations.
         args:
-          - --args=--config-file=.checkov.yaml --recursive
+          - --args=--config-file=__GIT_WORKING_DIR__/.checkov.yaml
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.37.1
     hooks:

@@ -5,7 +5,9 @@ enabled: true
 conditions:
   - display_name: "API Error Rate > 5%"
     condition_threshold:
-      filter: 'resource.type="consumed_api" AND resource.labels.project_id="%s" AND metric.type="serviceruntime.googleapis.com/api/request_count"'
+      filter: >-
+        resource.type="consumed_api" AND resource.labels.project_id="%s" AND
+        metric.type="serviceruntime.googleapis.com/api/request_count"
       comparison: "COMPARISON_GREATER_THAN"
       threshold_value: 0.05
       duration: "300s"

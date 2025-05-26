@@ -1,237 +1,84 @@
-# Google Project OpenTofu Module
+# Google Cloud Monitoring Module
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/dadandlad.co)
-
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
-[![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
-[![OpenTofu Validate](https://github.com/dadandlad-co/ot-google-project-module/actions/workflows/terraform-validate.yml/badge.svg)](https://github.com/dadandlad-co/ot-google-project-module/actions/workflows/terraform-validate.yml)
-
-This OpenTofu module creates and manages Google Cloud Platform (GCP) projects with comprehensive features including
-API management, IAM configuration, service accounts, shared VPC attachment, and optional billing budget management.
+This Terraform module configures monitoring resources for Google Cloud Platform projects, including alert
+policies, notification channels, and dashboards.
 
 ## Features
 
-- **Project Creation**: Creates GCP projects with proper validation and lifecycle management
-- **API Management**: Enables required APIs with dependency handling (includes essential APIs by default)
-- **IAM Management**: Supports both standard and conditional IAM policies using the member approach
-- **Service Accounts**: Optional project service account creation with configurable roles
-- **Random ID Support**: Optional random suffix for unique project IDs
-- **Shared VPC**: Automatic attachment to shared VPC host projects
-- **Budget Management**: Separate billing budget module with comprehensive alerting
-- **Comprehensive Validation**: Extensive input validation to catch errors early
-- **Labels & Metadata**: Automatic labeling with custom label support
-
-## Modules
-
-### Project Module (`modules/project`)
-
-Creates and manages GCP projects with all essential features.
-
-### Billing Budget Module (`modules/billing-budget`)
-
-Creates and manages billing budgets with alerts and notifications.
-
-## Quick Start
-
-### Basic Project Creation
-
-```hcl
-module "my_project" {
-  source = "github.com/dadandlad-co/ot-google-project-module//modules/project"
-
-  name            = "My Awesome Project"
-  project_id      = "my-awesome-project"
-  org_id          = "123456789012"
-  billing_account = "ABCDEF-123456-GHIJKL"
-
-  activate_apis = [
-    "compute.googleapis.com",
-    "storage.googleapis.com"
-  ]
-
-  labels = {
-    environment = "development"
-    team        = "platform"
-  }
-}
-```
-
-### Project with Budget
-
-```hcl
-module "project_with_budget" {
-  source = "github.com/dadandlad-co/ot-google-project-module//modules/project"
-
-  name            = "Production Project"
-  project_id      = "prod-project"
-  org_id          = "123456789012"
-  billing_account = "ABCDEF-123456-GHIJKL"
-
-  random_project_id = true  # Adds random suffix
-
-  create_project_sa = true
-  project_sa_roles = [
-    "roles/storage.admin",
-    "roles/monitoring.metricWriter"
-  ]
-}
-
-module "project_budget" {
-  source = "github.com/dadandlad-co/ot-google-project-module//modules/billing-budget"
-
-  billing_account = "ABCDEF-123456-GHIJKL"
-  display_name    = "Production Budget"
-  amount          = 1000
-
-  project_ids = [module.project_with_budget.number]
-
-  alert_spend_thresholds = [0.6, 0.8, 0.9, 1.0]
-  alert_email_addresses  = ["admin@example.com"]
-}
-```
-
-## Default APIs
-
-The project module automatically enables these essential APIs:
-
-- `cloudresourcemanager.googleapis.com` - Project management
-- `cloudbilling.googleapis.com` - Billing operations
-- `iam.googleapis.com` - IAM operations
-- `serviceusage.googleapis.com` - API management
-
-## Examples
-
-### Simple Example
-
-Basic project creation with minimal configuration.
-
-- **Location**: `examples/simple/`
-- **Use case**: Development projects, testing
-
-### Complete Example
-
-Comprehensive project setup with all features enabled.
-
-- **Location**: `examples/complete/`
-- **Use case**: Production projects with full IAM, budgets, and monitoring
-
-## Development Workflow
-
-This module includes a comprehensive `Taskfile.yaml` for development automation:
-
-```bash
-# Set up development environment
-task dev-setup
-
-# Validate all modules and examples
-task validate
-
-# Run comprehensive tests
-task test
-
-# Format all files
-task fmt
-
-# Generate documentation
-task docs
-
-# Run security scans
-task security-scan
-```
-
-## Module Inputs
-
-### Project Module Variables
-
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|----------|
-| `name` | Project display name | `string` | n/a | yes |
-| `project_id` | Unique project ID | `string` | n/a | yes |
-| `org_id` | Organization ID | `string` | `null` | no |
-| `billing_account` | Billing account ID | `string` | n/a | yes |
-| `activate_apis` | Additional APIs to enable | `list(string)` | `[]` | no |
-| `random_project_id` | Add random suffix | `bool` | `false` | no |
-| `create_project_sa` | Create service account | `bool` | `false` | no |
-| `iam_members` | IAM member bindings | `list(object)` | `[]` | no |
-| `labels` | Project labels | `map(string)` | `{}` | no |
-
-### Budget Module Variables
-
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|----------|
-| `billing_account` | Billing account ID | `string` | n/a | yes |
-| `display_name` | Budget display name | `string` | n/a | yes |
-| `amount` | Budget amount | `number` | n/a | yes |
-| `project_ids` | Projects to monitor | `list(string)` | `[]` | no |
-| `alert_spend_thresholds` | Alert thresholds | `list(number)` | `[0.5,0.8,0.9,1.0]` | no |
-| `alert_email_addresses` | Email alerts | `list(string)` | `[]` | no |
-
-## Module Outputs
-
-### Project Module Outputs
-
-| Name | Description |
-|------|-------------|
-| `project_id` | The project ID |
-| `project_number` | The project number |
-| `service_account_email` | Service account email (if created) |
-| `enabled_apis` | List of enabled APIs |
-
-### Budget Module Outputs
-
-| Name | Description |
-|------|-------------|
-| `budget_id` | The budget ID |
-| `budget_name` | The budget name |
-| `created_pubsub_topic` | Created Pub/Sub topic |
-
-## Validation Features
-
-This module includes comprehensive validation:
-
-- **Project ID format**: Validates GCP project ID naming rules
-- **Billing account format**: Ensures proper billing account ID format
-- **Email addresses**: Validates email format for IAM members
-- **API names**: Ensures valid Google API endpoints
-- **Resource limits**: Validates lengths and ranges
-- **IAM roles**: Ensures roles start with `roles/`
-
-## Security Features
-
-- **Prevent destroy**: Projects have lifecycle protection
-- **IAM member approach**: Uses `google_project_iam_member` to avoid conflicts
-- **Secret scanning**: TruffleHog integration
-- **Security scanning**: tfsec and Checkov integration
-- **Least privilege**: Service accounts with minimal required permissions
-
-## Best Practices
-
-1. **Use random suffixes** for development projects to avoid naming conflicts
-2. **Enable budgets** for all projects to control costs
-3. **Use specific API lists** rather than enabling everything
-4. **Apply consistent labeling** for cost tracking and management
-5. **Use conditional IAM** for temporary access requirements
-6. **Validate inputs** using the provided validation rules
+- Creates default and custom alert policies for common metrics
+- Configures notification channels for email and Slack
+- Sets up uptime checks for HTTP endpoints
+- Deploys pre-configured dashboards
+- Monitors budget burn rates and quota usage
 
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| opentofu | >= 1.9.0 |
+| terraform | >= 1.9.0 |
 | google | >= 6.24.0 |
-| random | >= 3.7.1 |
 
-## Contributing
+## Usage
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+```hcl
+module "monitoring" {
+  source = "path/to/modules/monitoring"
+
+  project_id         = "my-gcp-project"
+  notification_emails = ["alerts@example.com"]
+
+  slack_channels = {
+    ops = {
+      channel = "#ops-alerts"
+      url     = "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+    }
+  }
+
+  # Optional: Configure custom thresholds
+  cpu_threshold    = 85
+  memory_threshold = 90
+  alert_duration   = 300
+}
+```
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| project_id | The GCP project ID where monitoring resources will be created | `string` | n/a | yes |
+| notification_emails | List of email addresses to receive alerts | `list(string)` | `[]` | no |
+| slack_channels | Map of Slack channels for notifications | `map(object)` | `{}` | no |
+| enable_default_alerts | Whether to create default alert policies for common metrics | `bool` | `true` | no |
+| cpu_threshold | CPU usage threshold percentage for alerts | `number` | `80` | no |
+| memory_threshold | Memory usage threshold percentage for alerts | `number` | `85` | no |
+| alert_duration | Duration in seconds before triggering an alert | `number` | `300` | no |
+| auto_close_duration | Duration in seconds to auto-close alerts | `number` | `86400` | no |
+| custom_alert_policies | Map of custom alert policies to create | `map(object)` | `{}` | no |
+| uptime_checks | Map of uptime checks to create | `map(object)` | `{}` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| notification_channels | Map of notification channel names to their IDs |
+| alert_policy_ids | Map of alert policy names to their IDs |
+| uptime_check_ids | Map of uptime check names to their IDs |
+| project_id | The project ID where monitoring resources were created |
+
+## Alert Policies
+
+The module includes several predefined alert policies:
+
+- **Budget Burn Rate**: Monitors project spending rate
+- **Project API Errors**: Alerts on high API error rates
+- **Quota Usage**: Monitors resource quota consumption
+
+Custom alert policies can be defined using the `custom_alert_policies` variable.
+
+## Dashboards
+
+The module includes a project overview dashboard that displays key metrics for the GCP project.
 
 ## License
 
-This module is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for details.
-
-## Support
-
-- 🐛 **Issues**: [GitHub Issues](https://github.com/dadandlad-co/ot-google-project-module/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/dadandlad-co/ot-google-project-module/discussions)
-- ☕ **Support**: [Buy Me a Coffee](https://buymeacoffee.com/dadandlad.co)
+This module is licensed under the [LICENSE](../../../LICENSE) file in the root of the repository.

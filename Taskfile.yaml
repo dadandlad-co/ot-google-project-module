@@ -57,18 +57,18 @@ tasks:
       - |
         # Move the existing files to a HOLD directory
         for i in {{.MANAGED_FILES}}; do
-          if [ -f "$i" -a ! -f ".skip_${i}" ]; then
+          if [ -f "$i" -a ! -f ".skip_$i" ]; then
             mv $i $i.HOLD
           fi
         done
       - |
         # Copy all non-skipped files from the template repo
         for i in {{.MANAGED_FILES}}; do
-          if [ ! -f ".skip_${i}" ]; then
+          if [ ! -f ".skip_$i" ]; then
             cp "{{.TEMPDIR}}/$i" .
           fi
         done
-      - defer: { task: clean }
+      - defer: {task: clean}
 
   run-opentofu:
     desc: Render the boilr template for OpenTofu template repos
@@ -80,7 +80,7 @@ tasks:
         if [ -d "terraform" ]; then
           mv terraform terraform.HOLD
         fi
-      - defer: { task: clean }
+      - defer: {task: clean}
       - "boilr template save boilr {{.REPO}} --force"
       - |
         if [ -f "{{.REPO}}.json" ]; then
@@ -114,7 +114,7 @@ tasks:
           mv Taskfile.yaml Taskfile.yaml.HOLD
         fi
         cp -r {{.TEMPDIR}}/Taskfile.yaml .
-      - defer: { task: clean }
+      - defer: {task: clean}
 
   clean:
     desc: Clean up the repository

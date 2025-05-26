@@ -5,7 +5,9 @@ enabled: true
 conditions:
   - display_name: "Quota usage > 80%"
     condition_threshold:
-      filter: 'resource.type="consumer_quota" AND resource.labels.project_id="%s" AND metric.type="serviceruntime.googleapis.com/quota/used"'
+      filter: >-
+        resource.type="consumer_quota" AND resource.labels.project_id="%s" AND
+        metric.type="serviceruntime.googleapis.com/quota/used"
       comparison: "COMPARISON_GREATER_THAN"
       threshold_value: 0.8
       duration: "300s"
